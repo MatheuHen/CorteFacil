@@ -1,8 +1,6 @@
 # CorteFácil - Sistema de Agendamento
 
-O **CorteFácil** é um sistema web desenvolvido para facilitar o processo de **agendamento de cortes de cabelo** em barbearias. Ele está sendo criado como parte da disciplina de **Processo de Software**, com foco em aplicar os conceitos aprendidos em sala, como levantamento de requisitos, modelagem, codificação e versionamento.
-
-Este projeto está sendo desenvolvido por etapas, utilizando práticas ágeis e ferramentas modernas, visando entregar um produto funcional e útil tanto para clientes quanto para barbeiros.
+O **CorteFácil** é um sistema web desenvolvido para facilitar o processo de **agendamento de cortes de cabelo** em barbearias. Ele está sendo criado como parte da disciplina de **Processo de Software**, Este projeto está sendo desenvolvido por etapas, utilizando práticas ágeis e ferramentas modernas, visando entregar um produto funcional e útil tanto para clientes quanto para barbeiros.
 
 ---
 
