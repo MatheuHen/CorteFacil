@@ -33,8 +33,5 @@ O **CorteFácil** é um sistema web desenvolvido para facilitar o processo de **
 - **Git + GitHub** garantem controle das mudanças, colaboração e histórico do projeto.
 - **Postman** auxilia nos testes de rotas antes da integração.
 
----
-
-## Estrutura do Projeto
 
 
