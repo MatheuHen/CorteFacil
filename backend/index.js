@@ -1,30 +1,34 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const cors = require('cors');
+
+dotenv.config();
 
 const app = express();
-
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
-// Importa as rotas depois de configurar o app
+// suas rotas aqui
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const agendamentoRoutes = require('./routes/agendamentoRoutes');
+
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/agendamentos', agendamentoRoutes);
 
-
-// Conecta no banco
-mongoose.connect(process.env.DB_URI)
-  .then(() => console.log('MongoDB conectado com sucesso!'))
-  .catch(err => console.log('Erro ao conectar com MongoDB:', err));
-
-// Rota principal de teste
-app.get('/', (req, res) => {
-  res.send('Backend rodando com sucesso!');
-});
-
-// Sobe o servidor
+// exporta o app para uso nos testes
 module.exports = app;
 
+// inicia o servidor apenas se não estiver em modo de teste
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+
+  mongoose.connect(process.env.DB_URI)
+    .then(() => {
+      console.log('MongoDB conectado com sucesso!');
+      app.listen(PORT, () => {
+        console.log(`Servidor rodando na porta ${PORT}`);
+      });
+    })
+    .catch(err => console.error('Erro ao conectar no MongoDB:', err));
+}
