@@ -2,7 +2,8 @@ const request = require('supertest');
 const app = require('../index');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const Usuario = require('../../models/Usuario'); // ajuste o caminho se seu model estiver em outro lugar
+const Usuario = require('../../backend/models/Usuario');
+
 
 beforeAll(async () => {
   const senhaCriptografada = await bcrypt.hash('123456', 10);
