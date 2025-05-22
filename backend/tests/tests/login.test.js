@@ -1,6 +1,20 @@
 const request = require('supertest');
 const app = require('../index');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const Usuario = require('../../models/Usuario'); // ajuste o caminho se seu model estiver em outro lugar
+
+beforeAll(async () => {
+  const senhaCriptografada = await bcrypt.hash('123456', 10);
+
+  await Usuario.deleteMany({ email: 'usuario@email.com' });
+
+  await Usuario.create({
+    nome: 'Usuário de Teste',
+    email: 'usuario@email.com',
+    senha: senhaCriptografada
+  });
+});
 
 describe('Testes de autenticação - Login', () => {
 
