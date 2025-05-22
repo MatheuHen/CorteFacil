@@ -1,0 +1,30 @@
+name: Testes Automatizados
+
+on:
+  push:
+    branches: [ auth ]
+  pull_request:
+    branches: [ auth ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar o repositório
+        uses: actions/checkout@v3
+
+      - name: Instalar o Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências
+        run: |
+          cd backend
+          npm install
+
+      - name: Executar testes
+        run: |
+          cd backend
+          npm test
