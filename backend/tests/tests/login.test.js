@@ -32,3 +32,24 @@ describe('Testes de autenticação - Login', () => {
 afterAll(async () => {
   await mongoose.connection.close();
 });
+
+it('Deve negar acesso à rota protegida sem token', async () => {
+  const resposta = await request(app)
+    .get('/agendamentos'); // ajuste se essa rota não for protegida
+
+  expect(resposta.status).toBe(401); // ou 403, conforme sua API
+});
+
+it('Deve impedir cadastro de usuário já existente', async () => {
+  const resposta = await request(app)
+    .post('/api/usuarios/cadastro')
+    .send({
+      nome: 'Usuário Teste',
+      email: 'usuario@email.com', // já deve existir no banco
+      senha: '123456'
+    });
+
+  expect(resposta.status).toBe(400); // ou 409 se sua API usar código de conflito
+  expect(resposta.body).toHaveProperty('erro');
+});
+
