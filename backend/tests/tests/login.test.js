@@ -1,9 +1,8 @@
 const request = require('supertest');
-const app = require('../index');
+const app = require('../../backend/index');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Usuario = require('../../backend/models/Usuario');
-
 
 beforeAll(async () => {
   const senhaCriptografada = await bcrypt.hash('123456', 10);
@@ -17,14 +16,13 @@ beforeAll(async () => {
   });
 });
 
-describe('Testes de autenticação - Login', () => {
-
+describe('Testes de autenticação', () => {
   it('Deve fazer login com sucesso e retornar token', async () => {
     const resposta = await request(app)
       .post('/api/usuarios/login')
       .send({
         email: 'usuario@email.com',
-        senha: '123456' // use um usuário real do seu banco
+        senha: '123456'
       });
 
     expect(resposta.status).toBe(200);
@@ -39,32 +37,46 @@ describe('Testes de autenticação - Login', () => {
         senha: 'senhaerrada'
       });
 
-    expect(resposta.status).toBe(401); // ou 400, dependendo da sua API
+    expect(resposta.status).toBe(401);
     expect(resposta.body).toHaveProperty('erro');
+  });
+
+  it('Deve negar acesso à rota protegida sem token', async () => {
+    const resposta = await request(app).get('/agendamentos');
+    expect([401, 403]).toContain(resposta.status);
+  });
+
+  it('Deve impedir cadastro de usuário já existente', async () => {
+    const resposta = await request(app)
+      .post('/api/usuarios/cadastro')
+      .send({
+        nome: 'Usuário Teste',
+        email: 'usuario@email.com',
+        senha: '123456'
+      });
+
+    expect([400, 409]).toContain(resposta.status);
+    expect(resposta.body).toHaveProperty('erro');
+  });
+
+  it('Deve acessar rota protegida com token válido', async () => {
+    const login = await request(app)
+      .post('/api/usuarios/login')
+      .send({
+        email: 'usuario@email.com',
+        senha: '123456'
+      });
+
+    const token = login.body.token;
+
+    const resposta = await request(app)
+      .get('/agendamentos')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(resposta.status).toBe(200);
   });
 });
 
 afterAll(async () => {
   await mongoose.connection.close();
 });
-
-it('Deve negar acesso à rota protegida sem token', async () => {
-  const resposta = await request(app)
-    .get('/agendamentos'); // ajuste se essa rota não for protegida
-
-  expect(resposta.status).toBe(401); // ou 403, conforme sua API
-});
-
-it('Deve impedir cadastro de usuário já existente', async () => {
-  const resposta = await request(app)
-    .post('/api/usuarios/cadastro')
-    .send({
-      nome: 'Usuário Teste',
-      email: 'usuario@email.com', // já deve existir no banco
-      senha: '123456'
-    });
-
-  expect(resposta.status).toBe(400); // ou 409 se sua API usar código de conflito
-  expect(resposta.body).toHaveProperty('erro');
-});
-
