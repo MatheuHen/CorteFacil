@@ -6,4 +6,11 @@ describe('Testes de integração - Agendamentos', () => {
     const resposta = await request(app).get('/agendamentos');
     expect(resposta.status).toBe(200);
   });
+
+  const mongoose = require('mongoose');
+
+afterAll(async () => {
+  await mongoose.connection.close();
+});
+
 });

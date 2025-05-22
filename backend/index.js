@@ -10,7 +10,10 @@ app.use(cors());
 
 // Importa as rotas depois de configurar o app
 const usuarioRoutes = require('./routes/usuarioRoutes');
+const agendamentoRoutes = require('./routes/agendamentoRoutes');
 app.use('/api/usuarios', usuarioRoutes);
+app.use('/agendamentos', agendamentoRoutes);
+
 
 // Conecta no banco
 mongoose.connect(process.env.DB_URI)
@@ -23,7 +26,5 @@ app.get('/', (req, res) => {
 });
 
 // Sobe o servidor
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Servidor backend rodando na porta ${PORT}`);
-});
+module.exports = app;
+
