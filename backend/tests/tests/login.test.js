@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../backend/index');
+const app = require('../../index');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Usuario = require('../../backend/models/Usuario');
