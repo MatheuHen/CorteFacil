@@ -20,11 +20,11 @@ jobs:
           node-version: '18'
 
       - name: Instalar dependências
-        run: |
-          cd backend
-          npm install
+        run: npm install
 
-      - name: Executar testes
+      - name: Executar testes com npx
         run: |
           cd backend
-          ./node_modules/.bin/jest
+          rm -rf node_modules package-lock.json
+          npm install
+          npx jest
