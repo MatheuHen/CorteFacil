@@ -2,15 +2,25 @@ name: CI/CD Corte Fácil
 
 on:
   push:
-    branches: [main]
+    branches: [auth]
 
 jobs:
   test-backend:
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-      - uses: actions/checkout@v3  # Pega o código do repositório
+      - uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v3  # Instala o Node.js versão 16
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
       - name: Instalar dependências backend
@@ -26,9 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-backend
     steps:
-      - uses: actions/checkout@v3  # Pega o código do repositório
+      - uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v3  # Instala Node.js versão 16
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
       - name: Instalar dependências frontend

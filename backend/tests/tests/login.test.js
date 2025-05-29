@@ -1,3 +1,4 @@
+jest.setTimeout(15000);
 const request = require('supertest');
 const app = require('../../index'); // está correto!
 const mongoose = require('mongoose');
