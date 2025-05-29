@@ -1,0 +1,41 @@
+name: CI/CD Corte Fácil
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3  # Pega o código do repositório
+      - name: Setup Node.js
+        uses: actions/setup-node@v3  # Instala o Node.js versão 16
+        with:
+          node-version: '16'
+      - name: Instalar dependências backend
+        run: |
+          cd backend
+          npm install
+      - name: Rodar testes backend
+        run: |
+          cd backend
+          npm test
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    needs: test-backend
+    steps:
+      - uses: actions/checkout@v3  # Pega o código do repositório
+      - name: Setup Node.js
+        uses: actions/setup-node@v3  # Instala Node.js versão 16
+        with:
+          node-version: '16'
+      - name: Instalar dependências frontend
+        run: |
+          cd frontend
+          npm install
+      - name: Rodar testes frontend
+        run: |
+          cd frontend
+          npm test
