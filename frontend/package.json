@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "cortefacil-frontend",
   "version": "0.1.0",
   "private": true,
@@ -16,6 +17,24 @@
   },
   "scripts": {
     "start": "react-scripts start",
+=======
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^6.8.1",
+    "react-scripts": "^3.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts --openssl-legacy-provider start",
+>>>>>>> e5c03d2b0ab424ffecedba281804953725a2063b
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
