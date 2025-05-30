@@ -35,3 +35,36 @@ exports.login = async (req, res) => {
     res.status(400).json({ erro: erro.message });
   }
 };
+
+// Agendamento
+exports.agendar = async (req, res) => {
+  try {
+    const { clienteId, barbeiroId, horario } = req.body;
+
+    // Verificar disponibilidade
+    const disponibilidade = await verificarDisponibilidade(barbeiroId, horario);
+    if (!disponibilidade) return res.status(400).json({ erro: 'Horário indisponível' });
+
+    // Criar agendamento
+    const novoAgendamento = new Agendamento({ clienteId, barbeiroId, horario });
+    await novoAgendamento.save();
+
+    // Enviar notificação
+    await enviarNotificacao(clienteId, 'Agendamento confirmado');
+
+    res.status(201).json({ mensagem: 'Agendamento realizado com sucesso!' });
+  } catch (erro) {
+    res.status(400).json({ erro: erro.message });
+  }
+};
+
+// Função para verificar disponibilidade
+async function verificarDisponibilidade(barbeiroId, horario) {
+  // Implementar lógica de verificação
+  return true;
+}
+
+// Função para enviar notificação
+async function enviarNotificacao(clienteId, mensagem) {
+  // Implementar lógica de envio de notificação
+}

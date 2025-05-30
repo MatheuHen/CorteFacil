@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../index'); // ajuste o caminho se seu server estiver em outro arquivo
+const app = require('../../index');
 
 describe('Testes de integração - Agendamentos', () => {
   it('Deve retornar 200 ao acessar GET /agendamentos', async () => {
