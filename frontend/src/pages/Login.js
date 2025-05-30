@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mensagem, setMensagem] = useState('');
+  const navigate = useNavigate();
 
   const fazerLogin = async () => {
     try {
@@ -17,7 +18,8 @@ function Login() {
 
       if (resposta.ok) {
         setMensagem(`✅ ${dados.mensagem}`);
-        console.log('Token:', dados.token);
+        localStorage.setItem('token', dados.token);
+        navigate('/profile-selection');
       } else {
         setMensagem(`❌ ${dados.erro}`);
       }
