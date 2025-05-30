@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
+const { auth, isAdmin } = require('../middleware/auth');
 
 // Rota de login
 router.post('/login', async (req, res) => {
@@ -18,6 +19,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Verifica se o usuário está ativo
+    if (!usuario.ativo) {
+      return res.status(401).json({ 
+        erro: true,
+        mensagem: 'Usuário inativo' 
+      });
+    }
+
     // Verifica a senha
     const senhaValida = await usuario.verificarSenha(senha);
     if (!senhaValida) {
@@ -26,6 +35,9 @@ router.post('/login', async (req, res) => {
         mensagem: 'Email ou senha inválidos' 
       });
     }
+
+    // Atualiza último login
+    await usuario.atualizarUltimoLogin();
 
     // Gera o token JWT
     const token = jwt.sign(
@@ -57,8 +69,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Listar usuários
-router.get('/', async (req, res) => {
+// Listar usuários (apenas admin)
+router.get('/', auth, isAdmin, async (req, res) => {
   try {
     const usuarios = await Usuario.find().select('-senha');
     res.json({ 
@@ -74,8 +86,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Criar usuário
-router.post('/', async (req, res) => {
+// Criar usuário (apenas admin)
+router.post('/', auth, isAdmin, async (req, res) => {
   try {
     const { nome, email, senha, tipo, telefone } = req.body;
 
@@ -166,11 +178,24 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Atualizar usuário
-router.put('/:id', async (req, res) => {
+// Atualizar usuário (apenas admin ou próprio usuário)
+router.put('/:id', auth, async (req, res) => {
   try {
+    // Verifica se é admin ou o próprio usuário
+    if (req.userTipo !== 'admin' && req.userId !== req.params.id) {
+      return res.status(403).json({
+        erro: true,
+        mensagem: 'Você não tem permissão para atualizar este usuário'
+      });
+    }
+
     const { nome, email, senha, tipo, telefone } = req.body;
     const updates = { nome, email, tipo, telefone };
+
+    // Se não for admin, não pode mudar o tipo
+    if (req.userTipo !== 'admin') {
+      delete updates.tipo;
+    }
 
     // Se uma nova senha foi fornecida, criptografa
     if (senha) {
@@ -231,10 +256,10 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Excluir usuário
-router.delete('/:id', async (req, res) => {
+// Excluir usuário (apenas admin)
+router.delete('/:id', auth, isAdmin, async (req, res) => {
   try {
-    const usuario = await Usuario.findByIdAndDelete(req.params.id);
+    const usuario = await Usuario.findById(req.params.id);
     
     if (!usuario) {
       return res.status(404).json({
@@ -243,15 +268,47 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
+    // Em vez de excluir, apenas desativa
+    await usuario.desativar();
+
     res.json({
       erro: false,
-      mensagem: 'Usuário excluído com sucesso'
+      mensagem: 'Usuário desativado com sucesso'
     });
   } catch (error) {
     console.error('Erro ao excluir usuário:', error);
     res.status(500).json({
       erro: true,
       mensagem: 'Erro interno do servidor'
+    });
+  }
+});
+
+// Rota para obter perfis disponíveis
+router.get('/perfis', auth, async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.userId);
+    const perfis = [];
+
+    if (usuario.tipo === 'admin') {
+      perfis.push('admin');
+    }
+    if (usuario.tipo === 'barbeiro' || usuario.tipo === 'admin') {
+      perfis.push('barbeiro');
+    }
+    if (usuario.tipo === 'cliente' || usuario.tipo === 'admin') {
+      perfis.push('cliente');
+    }
+
+    res.json({
+      erro: false,
+      perfis
+    });
+  } catch (error) {
+    console.error('Erro ao obter perfis:', error);
+    res.status(500).json({
+      erro: true,
+      mensagem: 'Erro ao obter perfis'
     });
   }
 });

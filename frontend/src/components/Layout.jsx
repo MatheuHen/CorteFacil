@@ -26,10 +26,13 @@ const drawerWidth = 240;
 export default function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const menuItems = [
     { text: 'Agendamentos', icon: <EventIcon />, path: '/agendamentos' },
-    { text: 'Usuários', icon: <PersonIcon />, path: '/usuarios' },
+    ...(user.tipo === 'admin' ? [
+      { text: 'Usuários', icon: <PersonIcon />, path: '/usuarios' }
+    ] : [])
   ];
 
   const handleDrawerToggle = () => {
@@ -38,6 +41,7 @@ export default function Layout({ children }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/login');
   };
 

@@ -2,101 +2,64 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const usuariosRoutes = require('./routes/usuarios');
+const agendamentosRoutes = require('./routes/agendamentos');
 require('dotenv').config();
 
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://corte-facil.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
-// Conexão com o MongoDB com retry
-const connectDB = async (retryCount = 0) => {
+// Conexão com o MongoDB
+const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.DB_URI || 'mongodb+srv://admin:admin@cluster0.iqbqbxe.mongodb.net/cortefacil?retryWrites=true&w=majority', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cortefacil');
     console.log('Conectado ao MongoDB');
-  } catch (err) {
-    console.error('Erro ao conectar ao MongoDB:', err);
-    if (retryCount < 3) {
-      console.log(`Tentando reconectar... Tentativa ${retryCount + 1}`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      return connectDB(retryCount + 1);
-    }
+  } catch (error) {
+    console.error('Erro ao conectar ao MongoDB:', error);
     process.exit(1);
   }
 };
 
-// Rotas da API
-app.use('/api/usuarios', require('./routes/usuarios'));
-app.use('/api/agendamentos', require('./routes/agendamentos'));
-
-// Servir arquivos estáticos do frontend
-app.use(express.static(path.join(__dirname, '../frontend/build')));
+// Rotas
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/agendamentos', agendamentosRoutes);
 
 // Rota inicial
 app.get('/api', (req, res) => {
   res.json({ message: 'API CorteFacil funcionando!' });
 });
 
-// Rota para todas as outras requisições
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-});
-
-// Função para encontrar uma porta disponível
-const findAvailablePort = async (preferredPort, maxAttempts = 10) => {
-  const net = require('net');
-  
-  const isPortAvailable = (port) => {
-    return new Promise((resolve) => {
-      const server = net.createServer();
-      server.once('error', () => {
-        resolve(false);
-      });
-      server.once('listening', () => {
-        server.close();
-        resolve(true);
-      });
-      server.listen(port);
-    });
-  };
-
-  // Primeiro tenta a porta preferida
-  if (await isPortAvailable(preferredPort)) {
-    return preferredPort;
-  }
-
-  // Se não conseguir, tenta portas alternativas
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const port = preferredPort + attempt;
-    if (await isPortAvailable(port)) {
-      console.log(`Porta ${preferredPort} está em uso. Usando porta alternativa: ${port}`);
-      return port;
-    }
-  }
-
-  throw new Error(`Não foi possível encontrar uma porta disponível após ${maxAttempts} tentativas`);
-};
-
-// Iniciar servidor
+// Função para iniciar o servidor
 const startServer = async () => {
-  await connectDB();
   try {
-    const preferredPort = process.env.PORT || 5000;
-    const port = await findAvailablePort(preferredPort);
+    await connectDB();
+    const port = process.env.PORT || 5000;
     
     app.listen(port, () => {
       console.log(`Servidor rodando na porta ${port}`);
     });
   } catch (error) {
-    console.error('Erro ao iniciar servidor:', error);
+    console.error('Erro ao iniciar o servidor:', error);
     process.exit(1);
   }
 };
 
-startServer();
+// Tratamento de erros não capturados
+process.on('unhandledRejection', (err) => {
+  console.error('Erro não tratado:', err);
+  process.exit(1);
+});
+
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 module.exports = app;

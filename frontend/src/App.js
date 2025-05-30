@@ -1,61 +1,75 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Agendamentos from './pages/Agendamentos';
 import Usuarios from './pages/Usuarios';
 import ClienteDashboard from './pages/ClienteDashboard';
 import BarbeiroDashboard from './pages/BarbeiroDashboard';
 import ProfileSelection from './pages/ProfileSelection';
+import Layout from './components/Layout';
 import PrivateRoute from './components/privateRoute';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/profile-selection"
-          element={
-            <PrivateRoute>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      
+      {/* Rotas protegidas */}
+      <Route
+        path="/profile-selection"
+        element={
+          <PrivateRoute>
+            <Layout>
               <ProfileSelection />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/cliente-dashboard"
-          element={
-            <PrivateRoute>
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/cliente-dashboard"
+        element={
+          <PrivateRoute>
+            <Layout>
               <ClienteDashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/barbeiro-dashboard"
-          element={
-            <PrivateRoute>
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/barbeiro-dashboard"
+        element={
+          <PrivateRoute>
+            <Layout>
               <BarbeiroDashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/agendamentos"
-          element={
-            <PrivateRoute>
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/agendamentos"
+        element={
+          <PrivateRoute>
+            <Layout>
               <Agendamentos />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/usuarios"
-          element={
-            <PrivateRoute>
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/usuarios"
+        element={
+          <PrivateRoute>
+            <Layout>
               <Usuarios />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/" element={<Navigate to="/login" />} />
-      </Routes>
-    </BrowserRouter>
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      
+      {/* Rota para qualquer outro caminho não definido */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
 
