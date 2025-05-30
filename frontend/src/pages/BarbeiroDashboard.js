@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../config/axios';
 import './BarbeiroDashboard.css';
 
 function BarbeiroDashboard() {
@@ -21,7 +22,6 @@ function BarbeiroDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verificar se o usuário está logado e é barbeiro
     const token = localStorage.getItem('token');
     const tipoPerfil = localStorage.getItem('tipoPerfil');
     
@@ -30,77 +30,75 @@ function BarbeiroDashboard() {
       return;
     }
     
-    // Carregar dados do barbeiro
-    carregarAgendamentos();
-    carregarEstatisticas();
+    carregarDados();
   }, [navigate]);
 
-  const carregarAgendamentos = () => {
-    // Simulação de dados - aqui você faria uma chamada para a API
-    const agendamentosSimulados = [
-      {
-        id: 1,
-        cliente: 'Maria Silva',
-        data: '2024-01-15',
-        horario: '14:00',
-        servico: 'Corte + Barba',
-        status: 'Confirmado',
-        valor: 35.00
-      },
-      {
-        id: 2,
-        cliente: 'João Santos',
-        data: '2024-01-15',
-        horario: '15:30',
-        servico: 'Corte',
-        status: 'Pendente',
-        valor: 25.00
-      },
-      {
-        id: 3,
-        cliente: 'Pedro Costa',
-        data: '2024-01-16',
-        horario: '10:00',
-        servico: 'Barba',
-        status: 'Confirmado',
-        valor: 15.00
-      }
-    ];
-    setAgendamentos(agendamentosSimulados);
-  };
+  const carregarDados = async () => {
+    try {
+      const [agendamentosRes, horariosRes, estatisticasRes] = await Promise.all([
+        api.get('/api/agendamentos/barbeiro'),
+        api.get('/api/barbeiros/horarios'),
+        api.get('/api/barbeiros/estatisticas')
+      ]);
 
-  const carregarEstatisticas = () => {
-    // Simulação de estatísticas
-    setEstatisticas({
-      agendamentosHoje: 5,
-      faturamentoMes: 1250.00,
-      clientesAtendidos: 42
-    });
-  };
-
-  const confirmarAgendamento = (id) => {
-    setAgendamentos(agendamentos.map(ag => 
-      ag.id === id ? { ...ag, status: 'Confirmado' } : ag
-    ));
-  };
-
-  const cancelarAgendamento = (id) => {
-    if (window.confirm('Tem certeza que deseja cancelar este agendamento?')) {
-      setAgendamentos(agendamentos.map(ag => 
-        ag.id === id ? { ...ag, status: 'Cancelado' } : ag
-      ));
+      setAgendamentos(agendamentosRes.data);
+      if (horariosRes.data) setHorarios(horariosRes.data);
+      setEstatisticas(estatisticasRes.data);
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+      alert('Erro ao carregar dados. Por favor, tente novamente.');
     }
   };
 
-  const finalizarAtendimento = (id) => {
-    setAgendamentos(agendamentos.map(ag => 
-      ag.id === id ? { ...ag, status: 'Finalizado' } : ag
-    ));
+  const confirmarAgendamento = async (id) => {
+    try {
+      await api.put(`/api/agendamentos/${id}/confirmar`);
+      setAgendamentos(agendamentos.map(ag => 
+        ag._id === id ? { ...ag, status: 'Confirmado' } : ag
+      ));
+      alert('Agendamento confirmado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao confirmar agendamento:', error);
+      alert('Erro ao confirmar agendamento. Por favor, tente novamente.');
+    }
   };
 
-  const salvarHorarios = () => {
-    // Aqui você salvaria os horários na API
-    alert('Horários de funcionamento atualizados!');
+  const cancelarAgendamento = async (id) => {
+    if (window.confirm('Tem certeza que deseja cancelar este agendamento?')) {
+      try {
+        await api.put(`/api/agendamentos/${id}/cancelar`);
+        setAgendamentos(agendamentos.map(ag => 
+          ag._id === id ? { ...ag, status: 'Cancelado' } : ag
+        ));
+        alert('Agendamento cancelado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao cancelar agendamento:', error);
+        alert('Erro ao cancelar agendamento. Por favor, tente novamente.');
+      }
+    }
+  };
+
+  const finalizarAtendimento = async (id) => {
+    try {
+      await api.put(`/api/agendamentos/${id}/finalizar`);
+      setAgendamentos(agendamentos.map(ag => 
+        ag._id === id ? { ...ag, status: 'Finalizado' } : ag
+      ));
+      alert('Atendimento finalizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao finalizar atendimento:', error);
+      alert('Erro ao finalizar atendimento. Por favor, tente novamente.');
+    }
+  };
+
+  const salvarHorarios = async () => {
+    try {
+      await api.put('/api/barbeiros/horarios', horarios);
+      alert('Horários de funcionamento atualizados com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar horários:', error);
+      alert('Erro ao salvar horários. Por favor, tente novamente.');
+    }
   };
 
   const logout = () => {
@@ -163,13 +161,13 @@ function BarbeiroDashboard() {
             ) : (
               <div className="agendamentos-list">
                 {agendamentos.map(agendamento => (
-                  <div key={agendamento.id} className="agendamento-card">
+                  <div key={agendamento._id} className="agendamento-card">
                     <div className="agendamento-info">
-                      <h3>{agendamento.cliente}</h3>
+                      <h3>{agendamento.cliente?.nome || 'Cliente'}</h3>
                       <p><strong>Serviço:</strong> {agendamento.servico}</p>
                       <p><strong>Data:</strong> {new Date(agendamento.data).toLocaleDateString('pt-BR')}</p>
                       <p><strong>Horário:</strong> {agendamento.horario}</p>
-                      <p><strong>Valor:</strong> R$ {agendamento.valor.toFixed(2)}</p>
+                      <p><strong>Valor:</strong> R$ {agendamento.valor?.toFixed(2) || '0.00'}</p>
                       <span className={`status ${agendamento.status.toLowerCase()}`}>
                         {agendamento.status}
                       </span>
@@ -177,7 +175,7 @@ function BarbeiroDashboard() {
                     <div className="agendamento-actions">
                       {agendamento.status === 'Pendente' && (
                         <button 
-                          onClick={() => confirmarAgendamento(agendamento.id)}
+                          onClick={() => confirmarAgendamento(agendamento._id)}
                           className="btn-confirm"
                         >
                           Confirmar
@@ -185,7 +183,7 @@ function BarbeiroDashboard() {
                       )}
                       {agendamento.status === 'Confirmado' && (
                         <button 
-                          onClick={() => finalizarAtendimento(agendamento.id)}
+                          onClick={() => finalizarAtendimento(agendamento._id)}
                           className="btn-finish"
                         >
                           Finalizar
@@ -193,7 +191,7 @@ function BarbeiroDashboard() {
                       )}
                       {agendamento.status !== 'Finalizado' && agendamento.status !== 'Cancelado' && (
                         <button 
-                          onClick={() => cancelarAgendamento(agendamento.id)}
+                          onClick={() => cancelarAgendamento(agendamento._id)}
                           className="btn-cancel"
                         >
                           Cancelar
@@ -248,7 +246,7 @@ function BarbeiroDashboard() {
                   )}
                 </div>
               ))}
-              <button onClick={salvarHorarios} className="btn-primary">
+              <button onClick={salvarHorarios} className="btn-save">
                 Salvar Horários
               </button>
             </div>

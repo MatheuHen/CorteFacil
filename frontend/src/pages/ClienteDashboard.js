@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../config/axios';
 import './ClienteDashboard.css';
 
 function ClienteDashboard() {
@@ -12,7 +13,6 @@ function ClienteDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verificar se o usuário está logado e é cliente
     const token = localStorage.getItem('token');
     const tipoPerfil = localStorage.getItem('tipoPerfil');
     
@@ -21,56 +21,46 @@ function ClienteDashboard() {
       return;
     }
     
-    // Carregar agendamentos do cliente
     carregarAgendamentos();
   }, [navigate]);
 
-  const carregarAgendamentos = () => {
-    // Simulação de dados - aqui você faria uma chamada para a API
-    const agendamentosSimulados = [
-      {
-        id: 1,
-        data: '2024-01-15',
-        horario: '14:00',
-        servico: 'Corte + Barba',
-        barbeiro: 'João Silva',
-        status: 'Confirmado'
-      },
-      {
-        id: 2,
-        data: '2024-01-20',
-        horario: '16:30',
-        servico: 'Corte',
-        barbeiro: 'Pedro Santos',
-        status: 'Pendente'
-      }
-    ];
-    setAgendamentos(agendamentosSimulados);
+  const carregarAgendamentos = async () => {
+    try {
+      const response = await api.get('/api/agendamentos/cliente');
+      setAgendamentos(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar agendamentos:', error);
+      alert('Erro ao carregar agendamentos. Por favor, tente novamente.');
+    }
   };
 
-  const agendarServico = () => {
+  const agendarServico = async () => {
     if (!novoAgendamento.data || !novoAgendamento.horario) {
       alert('Por favor, preencha todos os campos!');
       return;
     }
     
-    // Aqui você faria uma chamada para a API para criar o agendamento
-    const novoId = agendamentos.length + 1;
-    const agendamento = {
-      id: novoId,
-      ...novoAgendamento,
-      barbeiro: 'A definir',
-      status: 'Pendente'
-    };
-    
-    setAgendamentos([...agendamentos, agendamento]);
-    setNovoAgendamento({ data: '', horario: '', servico: 'corte' });
-    alert('Agendamento solicitado com sucesso!');
+    try {
+      const response = await api.post('/api/agendamentos', novoAgendamento);
+      setAgendamentos([...agendamentos, response.data]);
+      setNovoAgendamento({ data: '', horario: '', servico: 'corte' });
+      alert('Agendamento realizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao criar agendamento:', error);
+      alert('Erro ao criar agendamento. Por favor, tente novamente.');
+    }
   };
 
-  const cancelarAgendamento = (id) => {
+  const cancelarAgendamento = async (id) => {
     if (window.confirm('Tem certeza que deseja cancelar este agendamento?')) {
-      setAgendamentos(agendamentos.filter(ag => ag.id !== id));
+      try {
+        await api.delete(`/api/agendamentos/${id}`);
+        setAgendamentos(agendamentos.filter(ag => ag._id !== id));
+        alert('Agendamento cancelado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao cancelar agendamento:', error);
+        alert('Erro ao cancelar agendamento. Por favor, tente novamente.');
+      }
     }
   };
 
@@ -142,18 +132,18 @@ function ClienteDashboard() {
           ) : (
             <div className="agendamentos-list">
               {agendamentos.map(agendamento => (
-                <div key={agendamento.id} className="agendamento-card">
+                <div key={agendamento._id} className="agendamento-card">
                   <div className="agendamento-info">
                     <h3>{agendamento.servico}</h3>
                     <p><strong>Data:</strong> {new Date(agendamento.data).toLocaleDateString('pt-BR')}</p>
                     <p><strong>Horário:</strong> {agendamento.horario}</p>
-                    <p><strong>Barbeiro:</strong> {agendamento.barbeiro}</p>
+                    <p><strong>Barbeiro:</strong> {agendamento.barbeiro?.nome || 'A definir'}</p>
                     <span className={`status ${agendamento.status.toLowerCase()}`}>
                       {agendamento.status}
                     </span>
                   </div>
                   <button 
-                    onClick={() => cancelarAgendamento(agendamento.id)}
+                    onClick={() => cancelarAgendamento(agendamento._id)}
                     className="btn-cancel"
                   >
                     Cancelar

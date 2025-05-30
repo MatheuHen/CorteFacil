@@ -9,7 +9,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -20,9 +20,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/usuarios/login', { email, senha });
+      const response = await api.post('/api/usuarios/login', { email, senha });
       localStorage.setItem('token', response.data.token);
-      navigate('/agendamentos');
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      navigate('/profile-selection');
     } catch (err) {
       setError('Email ou senha inválidos');
     }

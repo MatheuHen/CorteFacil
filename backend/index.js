@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Conexão com o MongoDB
-mongoose.connect(process.env.DB_URI, {
+mongoose.connect(process.env.DB_URI || 'mongodb+srv://admin:admin@cluster0.iqbqbxe.mongodb.net/cortefacil?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -35,9 +35,21 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+// Porta fixa para o servidor
+const PORT = process.env.PORT || 3001;
+
+// Função para tentar iniciar o servidor
+const startServer = () => {
+  try {
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Erro ao iniciar servidor:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 module.exports = app;
