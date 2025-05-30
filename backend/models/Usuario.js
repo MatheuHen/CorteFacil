@@ -16,8 +16,8 @@ const usuarioSchema = new mongoose.Schema({
   },
   tipo: {
     type: String,
-    enum: ['admin', 'funcionario', 'cliente'],
-    default: 'cliente'
+    enum: ['admin', 'barbeiro', 'user'],
+    default: 'user'
   }
 }, {
   timestamps: true
