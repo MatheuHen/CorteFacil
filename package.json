@@ -2,6 +2,9 @@
   "name": "cortefacil",
   "version": "1.0.0",
   "main": "backend/index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node backend/index.js",
     "dev": "nodemon backend/index.js",
