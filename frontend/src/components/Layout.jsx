@@ -26,11 +26,21 @@ const drawerWidth = 240;
 export default function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  
+  // Corrigindo a leitura do user do localStorage
+  let user = { tipo: 'cliente' }; // valor padrão
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      user = JSON.parse(userStr);
+    }
+  } catch (error) {
+    console.error('Erro ao ler user do localStorage:', error);
+  }
 
   const menuItems = [
     { text: 'Agendamentos', icon: <EventIcon />, path: '/agendamentos' },
-    ...(user.tipo === 'admin' ? [
+    ...(user?.tipo === 'admin' ? [
       { text: 'Usuários', icon: <PersonIcon />, path: '/usuarios' }
     ] : [])
   ];
