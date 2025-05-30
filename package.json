@@ -8,9 +8,7 @@
   "scripts": {
     "start": "node backend/index.js",
     "dev": "nodemon backend/index.js",
-    "test": "jest",
-    "heroku-postbuild": "cd frontend && npm install && npm run build",
-    "build": "cd frontend && npm install && npm run build"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
