@@ -21,10 +21,11 @@ function ProfileSelection() {
   const carregarPerfis = async () => {
     try {
       const response = await api.get('/api/usuarios/perfis');
-      setPerfisDisponiveis(response.data.perfis);
+      setPerfisDisponiveis(response.data.perfis || []);
     } catch (error) {
       console.error('Erro ao carregar perfis:', error);
       alert('Erro ao carregar perfis. Por favor, tente novamente.');
+      setPerfisDisponiveis([]);
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,7 @@ function ProfileSelection() {
         <p>Selecione seu perfil para continuar:</p>
         
         <div className="profile-options">
-          {perfisDisponiveis.includes('cliente') && (
+          {Array.isArray(perfisDisponiveis) && perfisDisponiveis.includes('cliente') && (
             <div 
               className="profile-option cliente"
               onClick={() => selecionarPerfil('cliente')}
@@ -82,7 +83,7 @@ function ProfileSelection() {
             </div>
           )}
           
-          {perfisDisponiveis.includes('barbeiro') && (
+          {Array.isArray(perfisDisponiveis) && perfisDisponiveis.includes('barbeiro') && (
             <div 
               className="profile-option barbeiro"
               onClick={() => selecionarPerfil('barbeiro')}

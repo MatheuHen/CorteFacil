@@ -1,56 +1,86 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-function Login() {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [mensagem, setMensagem] = useState('');
+import { Box, Container, TextField, Button, Typography, Paper } from '@mui/material';
+import api from '../config/axios';
+
+const Login = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    senha: ''
+  });
 
-  const fazerLogin = async () => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const resposta = await fetch('http://localhost:5000/api/usuarios/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha })
-      });
-
-      const dados = await resposta.json();
-
-      if (resposta.ok) {
-        setMensagem(`✅ ${dados.mensagem}`);
-        localStorage.setItem('token', dados.token);
+      const response = await api.post('/api/usuarios/login', formData);
+      if (!response.data.erro) {
+        localStorage.setItem('token', response.data.token);
         navigate('/profile-selection');
-      } else {
-        setMensagem(`❌ ${dados.erro}`);
       }
-    } catch (err) {
-      setMensagem('❌ Erro na conexão com o servidor');
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
-      <h2>Login - CorteFácil</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        style={{ padding: '8px', marginBottom: '10px', width: '100%' }}
-      />
-      <input
-        type="password"
-        placeholder="Senha"
-        value={senha}
-        onChange={e => setSenha(e.target.value)}
-        style={{ padding: '8px', marginBottom: '10px', width: '100%' }}
-      />
-      <button onClick={fazerLogin} style={{ padding: '10px', width: '100%' }}>
-        Entrar
-      </button>
-      {mensagem && <p style={{ marginTop: '20px' }}>{mensagem}</p>}
-    </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Typography variant="h4" component="h1" align="center" gutterBottom>
+            CorteFácil - Login
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Senha"
+              name="senha"
+              type="password"
+              value={formData.senha}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+            >
+              ENTRAR
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
-}
+};
 
 export default Login;

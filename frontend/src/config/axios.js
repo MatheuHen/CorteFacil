@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' 
-    ? 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com'
-    : 'http://localhost:3001'
+  baseURL: 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Interceptor para adicionar o token em todas as requisições
