@@ -34,12 +34,12 @@ const auth = async (req, res, next) => {
   }
 };
 
-// Middleware para verificar se o usuário é admin
+// Middleware para verificar se é admin
 const isAdmin = (req, res, next) => {
   if (req.userTipo !== 'admin') {
-    return res.status(403).json({ 
+    return res.status(403).json({
       erro: true,
-      mensagem: 'Acesso negado. Apenas administradores podem acessar este recurso.' 
+      mensagem: 'Acesso negado. Apenas administradores podem acessar este recurso.'
     });
   }
   next();

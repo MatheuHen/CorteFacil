@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Verifica a senha
-    const senhaValida = await usuario.verificarSenha(senha);
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
     if (!senhaValida) {
       return res.status(401).json({ 
         erro: true,
@@ -52,7 +52,7 @@ router.post('/login', async (req, res) => {
     res.json({ 
       erro: false,
       token,
-      usuario: {
+      user: {
         id: usuario._id,
         nome: usuario.nome,
         email: usuario.email,
