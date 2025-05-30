@@ -22,36 +22,14 @@ const auth = async (req, res, next) => {
       });
     }
 
-    if (!usuario.ativo) {
-      return res.status(401).json({ 
-        erro: true,
-        mensagem: 'Usuário inativo' 
-      });
-    }
-
-    // Adiciona informações do usuário ao request
     req.userId = usuario._id;
     req.userTipo = usuario.tipo;
-    req.user = usuario;
-
     next();
   } catch (error) {
-    console.error('Erro na autenticação:', error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ 
-        erro: true,
-        mensagem: 'Token inválido' 
-      });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ 
-        erro: true,
-        mensagem: 'Token expirado' 
-      });
-    }
-    res.status(500).json({ 
+    console.error('Erro de autenticação:', error);
+    res.status(401).json({ 
       erro: true,
-      mensagem: 'Erro na autenticação' 
+      mensagem: 'Token inválido ou expirado' 
     });
   }
 };
