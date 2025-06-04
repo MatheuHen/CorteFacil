@@ -28,9 +28,17 @@ mongoose.connect(DB_URI, {
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/agendamentos', agendamentosRoutes);
 
-// Rota inicial
+// Rota raiz com mensagem amigável
 app.get('/', (req, res) => {
-  res.json({ message: 'API CorteFacil funcionando!' });
+  res.json({
+    status: 'online',
+    message: 'API CorteFácil está online e funcionando!',
+    version: '1.0.0',
+    endpoints: {
+      usuarios: '/api/usuarios',
+      agendamentos: '/api/agendamentos'
+    }
+  });
 });
 
 // Função para iniciar o servidor
