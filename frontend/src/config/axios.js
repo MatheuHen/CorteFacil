@@ -1,24 +1,48 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  const env = process.env.NODE_ENV;
+  
+  switch (env) {
+    case 'production':
+      // Verifica qual domínio do Heroku está sendo acessado
+      if (window.location.hostname.includes('cortefacil-chat')) {
+        return 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com';
+      }
+      return 'https://cortefacilapp-c1680ff5711d.herokuapp.com';
+    case 'development':
+      return 'http://localhost:3333';
+    default:
+      return 'http://localhost:3333';
+  }
+};
+
 const api = axios.create({
-  baseURL: 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+  timeout: 10000 // timeout de 10 segundos
 });
 
 // Interceptor para adicionar o token em todas as requisições
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject({
+      erro: true,
+      mensagem: 'Erro na preparação da requisição'
+    });
   }
-  return config;
-}, error => {
-  return Promise.reject(error);
-});
+);
 
-// Interceptor para tratamento de erros
+// Interceptor para tratamento de respostas
 api.interceptors.response.use(
   response => response,
   error => {
@@ -29,7 +53,12 @@ api.interceptors.response.use(
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('tipoPerfil');
-        window.location.href = '/login';
+        
+        // Redireciona para login apenas se não estiver já na página de login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+        
         return Promise.reject({
           erro: true,
           mensagem: 'Sessão expirada. Por favor, faça login novamente.'
@@ -53,6 +82,14 @@ api.interceptors.response.use(
       return Promise.reject({
         erro: true,
         mensagem: error.response.data.mensagem || 'Erro no servidor. Tente novamente mais tarde.'
+      });
+    }
+
+    // Erro de timeout
+    if (error.code === 'ECONNABORTED') {
+      return Promise.reject({
+        erro: true,
+        mensagem: 'O servidor demorou muito para responder. Tente novamente.'
       });
     }
 

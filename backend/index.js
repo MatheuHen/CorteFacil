@@ -10,7 +10,12 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://corte-facil.vercel.app'],
+  origin: [
+    'http://localhost:3000',
+    'https://corte-facil.vercel.app',
+    'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
+    'https://cortefacilapp-c1680ff5711d.herokuapp.com'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']

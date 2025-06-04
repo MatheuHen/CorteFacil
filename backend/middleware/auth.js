@@ -12,24 +12,46 @@ const auth = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'segredo');
-    const usuario = await Usuario.findById(decoded.id).select('-senha');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'segredo_temporario');
+    
+    const usuario = await Usuario.findOne({ 
+      _id: decoded.id,
+      ativo: true 
+    }).select('-senha');
 
     if (!usuario) {
       return res.status(401).json({ 
         erro: true,
-        mensagem: 'Usuário não encontrado' 
+        mensagem: 'Usuário não encontrado ou inativo' 
       });
     }
 
+    // Adiciona informações do usuário ao request
+    req.usuario = usuario;
     req.userId = usuario._id;
     req.userTipo = usuario.tipo;
+    
     next();
   } catch (error) {
     console.error('Erro de autenticação:', error);
-    res.status(401).json({ 
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        erro: true,
+        mensagem: 'Token inválido' 
+      });
+    }
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        erro: true,
+        mensagem: 'Token expirado' 
+      });
+    }
+    
+    res.status(500).json({ 
       erro: true,
-      mensagem: 'Token inválido ou expirado' 
+      mensagem: 'Erro interno do servidor' 
     });
   }
 };
@@ -37,9 +59,9 @@ const auth = async (req, res, next) => {
 // Middleware para verificar se é admin
 const isAdmin = (req, res, next) => {
   if (req.userTipo !== 'admin') {
-    return res.status(403).json({
+    return res.status(403).json({ 
       erro: true,
-      mensagem: 'Acesso negado. Apenas administradores podem acessar este recurso.'
+      mensagem: 'Acesso negado. Apenas administradores podem acessar este recurso.' 
     });
   }
   next();
