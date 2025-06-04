@@ -1,9 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3333'
-    : 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
+  baseURL: process.env.REACT_APP_API_URL || 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
   headers: {
     'Content-Type': 'application/json',
   },

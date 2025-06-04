@@ -12,8 +12,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const DB_URI = process.env.DB_URI || 'mongodb+srv://admin:admin123@cluster0.p8w3rsa.mongodb.net/cortefacildb?retryWrites=true&w=majority&appName=Cluster0';
+
 // Conexão com o MongoDB
-mongoose.connect('mongodb+srv://admin:admin123@cluster0.p8w3rsa.mongodb.net/cortefacildb?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect(DB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
