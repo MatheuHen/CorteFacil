@@ -1,28 +1,13 @@
 import axios from 'axios';
 
-const getBaseURL = () => {
-  const env = process.env.NODE_ENV;
-  
-  switch (env) {
-    case 'production':
-      // Verifica qual domínio do Heroku está sendo acessado
-      if (window.location.hostname.includes('cortefacil-chat')) {
-        return 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com';
-      }
-      return 'https://cortefacilapp-c1680ff5711d.herokuapp.com';
-    case 'development':
-      return 'http://localhost:3333';
-    default:
-      return 'http://localhost:3333';
-  }
-};
-
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3333'
+    : 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000 // timeout de 10 segundos
+  timeout: 30000
 });
 
 // Interceptor para adicionar o token em todas as requisições

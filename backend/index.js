@@ -9,24 +9,21 @@ require('dotenv').config();
 const app = express();
 
 // Middlewares
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://corte-facil.vercel.app',
-    'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
-    'https://cortefacilapp-c1680ff5711d.herokuapp.com'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.use(express.json());
 
 // Conexão com o MongoDB
+const MONGODB_URI = 'mongodb+srv://admin:admin123@cluster0.p8w3rsa.mongodb.net/cortefacildb?retryWrites=true&w=majority&appName=Cluster0';
+
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cortefacil');
-    console.log('Conectado ao MongoDB');
+    await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+    });
+    console.log('Conectado ao MongoDB Atlas com sucesso!');
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
     process.exit(1);
@@ -38,7 +35,7 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/agendamentos', agendamentosRoutes);
 
 // Rota inicial
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.json({ message: 'API CorteFacil funcionando!' });
 });
 
@@ -46,9 +43,9 @@ app.get('/api', (req, res) => {
 const startServer = async () => {
   try {
     await connectDB();
-    const port = process.env.PORT || 5000;
+    const port = process.env.PORT || 3333;
     
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
       console.log(`Servidor rodando na porta ${port}`);
     });
   } catch (error) {
@@ -60,7 +57,6 @@ const startServer = async () => {
 // Tratamento de erros não capturados
 process.on('unhandledRejection', (err) => {
   console.error('Erro não tratado:', err);
-  process.exit(1);
 });
 
 if (process.env.NODE_ENV !== 'test') {
