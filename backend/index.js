@@ -1,8 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const usuariosRoutes = require('./routes/usuarios');
-const agendamentosRoutes = require('./routes/agendamentos');
+const router = require('./routes');
 
 const app = express();
 
@@ -36,8 +35,7 @@ app.get('/', (req, res) => {
 });
 
 // Rotas da API
-app.use('/api/usuarios', usuariosRoutes);
-app.use('/api/agendamentos', agendamentosRoutes);
+app.use('/api', router);
 
 // Inicialização do servidor
 const PORT = process.env.PORT || 3333;
