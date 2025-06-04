@@ -1,16 +1,18 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com',
+  baseURL: process.env.REACT_APP_API_URL || 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000
+  timeout: 30000,
+  withCredentials: true
 });
 
 // Interceptor para adicionar o token em todas as requisições
 api.interceptors.request.use(
   config => {
+    console.log('Fazendo requisição para:', config.url);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -18,6 +20,7 @@ api.interceptors.request.use(
     return config;
   },
   error => {
+    console.error('Erro na preparação da requisição:', error);
     return Promise.reject({
       erro: true,
       mensagem: 'Erro na preparação da requisição'
@@ -27,10 +30,17 @@ api.interceptors.request.use(
 
 // Interceptor para tratamento de respostas
 api.interceptors.response.use(
-  response => response,
+  response => {
+    console.log('Resposta recebida:', response.status);
+    return response;
+  },
   error => {
+    console.error('Erro na resposta:', error);
+
     // Erro do servidor (401, 403, 500, etc)
     if (error.response) {
+      console.log('Status do erro:', error.response.status);
+      
       // Token inválido ou expirado
       if (error.response.status === 401) {
         localStorage.removeItem('token');

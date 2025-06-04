@@ -24,10 +24,16 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization"
+      }
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://cortefacil-chat-6b9c1276ad86.herokuapp.com/api"
+    "REACT_APP_API_URL": "https://cortefacil-chat-6b9c1276ad86.herokuapp.com/api",
+    "NODE_ENV": "production"
   }
 } 
