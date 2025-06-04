@@ -13,22 +13,14 @@ app.use(cors());
 app.use(express.json());
 
 // Conexão com o MongoDB
-const MONGODB_URI = 'mongodb+srv://admin:admin123@cluster0.p8w3rsa.mongodb.net/cortefacildb?retryWrites=true&w=majority&appName=Cluster0';
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 30000,
-    });
-    console.log('Conectado ao MongoDB Atlas com sucesso!');
-  } catch (error) {
-    console.error('Erro ao conectar ao MongoDB:', error);
-    process.exit(1);
-  }
-};
+mongoose.connect('mongodb+srv://admin:admin123@cluster0.p8w3rsa.mongodb.net/cortefacildb?retryWrites=true&w=majority&appName=Cluster0', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB conectado com sucesso!');
+}).catch(err => {
+  console.error('Erro ao conectar ao MongoDB:', err);
+});
 
 // Rotas
 app.use('/api/usuarios', usuariosRoutes);
@@ -42,11 +34,10 @@ app.get('/', (req, res) => {
 // Função para iniciar o servidor
 const startServer = async () => {
   try {
-    await connectDB();
-    const port = process.env.PORT || 3333;
+    const PORT = process.env.PORT || 3333;
     
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`Servidor rodando na porta ${port}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
     });
   } catch (error) {
     console.error('Erro ao iniciar o servidor:', error);
