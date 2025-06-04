@@ -28,6 +28,6 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://cortefacil-chat-6b9c1276ad86.herokuapp.com"
+    "REACT_APP_API_URL": "https://cortefacil-chat-6b9c1276ad86.herokuapp.com/api"
   }
 } 
