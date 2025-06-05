@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const router = require('./routes');
+require('dotenv').config();
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
     status: 'online',
     message: 'API CorteFácil está online e funcionando!',
     version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
     endpoints: {
       usuarios: '/api/usuarios',
       agendamentos: '/api/agendamentos'
@@ -47,7 +49,7 @@ app.use('/api', router);
 // Inicialização do servidor
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT} em ambiente ${process.env.NODE_ENV || 'development'}`);
 });
 
 module.exports = app;

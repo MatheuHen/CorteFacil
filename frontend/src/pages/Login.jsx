@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -17,15 +17,38 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Limpa o localStorage ao entrar na página de login
+    localStorage.clear();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await api.post('/api/usuarios/login', { email, senha });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Verifica se a resposta contém os dados necessários
+      if (!response.data.token || !response.data.user) {
+        throw new Error('Resposta inválida do servidor');
+      }
+
+      // Salva os dados no localStorage
+      try {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        console.log('Dados salvos no localStorage:', {
+          token: response.data.token,
+          user: response.data.user
+        });
+      } catch (storageError) {
+        console.error('Erro ao salvar no localStorage:', storageError);
+        throw new Error('Erro ao salvar dados de autenticação');
+      }
+
       navigate('/profile-selection');
     } catch (err) {
-      setError('Email ou senha inválidos');
+      console.error('Erro no login:', err);
+      setError(err.response?.data?.mensagem || 'Email ou senha inválidos');
     }
   };
 
