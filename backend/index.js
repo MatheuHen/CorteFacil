@@ -9,7 +9,7 @@ const app = express();
 // Middlewares
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://corte-facil-seven.vercel.app'] 
+    ? ['https://corte-facil.vercel.app'] 
     : '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -18,9 +18,7 @@ app.use(cors({
 app.use(express.json());
 
 // Conexão MongoDB
-const DB_URI = process.env.DB_URI || 'mongodb+srv://admin:admin123@cluster0.p8w3rsa.mongodb.net/cortefacildb?retryWrites=true&w=majority&appName=Cluster0';
-
-mongoose.connect(DB_URI, {
+mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
