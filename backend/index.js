@@ -1,14 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const router = require('./routes');
+const router = require('./routes/index');
 require('dotenv').config();
 
 const app = express();
 
 // Middlewares
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'https://corte-facil.vercel.app',
+  'https://cortefacil-chat.vercel.app',
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: ['https://corte-facil.vercel.app'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
