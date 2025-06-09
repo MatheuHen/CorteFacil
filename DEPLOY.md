@@ -2,6 +2,14 @@
 
 Este guia explica como configurar e fazer deploy da aplicação CorteFácil nos diferentes ambientes.
 
+### ✅ Correções Aplicadas para Vercel
+
+- **Estrutura de arquivos corrigida**: Importações de componentes ajustadas para usar extensões corretas (.jsx, .js)
+- **React Hooks otimizados**: Corrigido uso condicional de useEffect no PrivateRoute
+- **Build otimizado**: Configuração do build para Windows com variáveis de ambiente corretas
+- **Vercel.json atualizado**: Configuração otimizada para React Router com cache de assets
+- **Linting corrigido**: Removidas importações não utilizadas e dependências de useEffect ajustadas
+
 ## Ambientes
 
 ### 1. **Local (Desenvolvimento)**

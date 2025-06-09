@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://cortefacil-chat-6b9c1276ad86.herokuapp.com/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3333/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,7 +11,9 @@ const api = axios.create({
 // Interceptor para adicionar o token em todas as requisições
 api.interceptors.request.use(
   config => {
-    console.log('Fazendo requisição para:', config.url);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Fazendo requisição para:', config.url);
+    }
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -19,7 +21,9 @@ api.interceptors.request.use(
     return config;
   },
   error => {
-    console.error('Erro na preparação da requisição:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro na preparação da requisição:', error);
+    }
     return Promise.reject({
       erro: true,
       mensagem: 'Erro na preparação da requisição'
@@ -101,4 +105,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api; 
+export default api;

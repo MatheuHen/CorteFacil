@@ -14,14 +14,14 @@ echo "🚀 Iniciando deploy para $ENVIRONMENT..."
 
 case $ENVIRONMENT in
     "staging")
-        echo "📦 Deploy para HOMOLOGAÇÃO"
+        echo " Deploy para HOMOLOGAÇÃO"
         
         # Deploy Backend
-        echo "🔧 Fazendo deploy do backend..."
+        echo " Fazendo deploy do backend..."
         git push heroku-staging main
         
         # Deploy Frontend
-        echo "🎨 Fazendo deploy do frontend..."
+        echo " Fazendo deploy do frontend..."
         cd frontend
         vercel --prod --local-config vercel.staging.json
         cd ..

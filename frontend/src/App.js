@@ -1,13 +1,12 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import Agendamentos from './pages/Agendamentos';
-import Usuarios from './pages/Usuarios';
-import ClienteDashboard from './pages/ClienteDashboard';
-import BarbeiroDashboard from './pages/BarbeiroDashboard';
-import ProfileSelection from './pages/ProfileSelection';
-import Layout from './components/Layout';
-import PrivateRoute from './components/privateRoute';
+import Login from './pages/Login.jsx';
+import Agendamentos from './pages/Agendamentos.jsx';
+import Usuarios from './pages/Usuarios.jsx';
+import ClienteDashboard from './pages/ClienteDashboard.js';
+import BarbeiroDashboard from './pages/BarbeiroDashboard.js';
+import ProfileSelection from './pages/ProfileSelection.js';
+import PrivateRoute from './components/privateRoute.jsx';
 
 function App() {
   return (
@@ -20,9 +19,7 @@ function App() {
         path="/profile-selection"
         element={
           <PrivateRoute>
-            <Layout>
-              <ProfileSelection />
-            </Layout>
+            <ProfileSelection />
           </PrivateRoute>
         }
       />
@@ -30,9 +27,7 @@ function App() {
         path="/cliente-dashboard"
         element={
           <PrivateRoute>
-            <Layout>
-              <ClienteDashboard />
-            </Layout>
+            <ClienteDashboard />
           </PrivateRoute>
         }
       />
@@ -40,9 +35,7 @@ function App() {
         path="/barbeiro-dashboard"
         element={
           <PrivateRoute>
-            <Layout>
-              <BarbeiroDashboard />
-            </Layout>
+            <BarbeiroDashboard />
           </PrivateRoute>
         }
       />
@@ -50,9 +43,7 @@ function App() {
         path="/agendamentos"
         element={
           <PrivateRoute>
-            <Layout>
-              <Agendamentos />
-            </Layout>
+            <Agendamentos />
           </PrivateRoute>
         }
       />
@@ -60,9 +51,7 @@ function App() {
         path="/usuarios"
         element={
           <PrivateRoute>
-            <Layout>
-              <Usuarios />
-            </Layout>
+            <Usuarios />
           </PrivateRoute>
         }
       />

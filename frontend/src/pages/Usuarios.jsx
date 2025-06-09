@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -46,7 +46,7 @@ export default function Usuarios() {
   });
   const [errors, setErrors] = useState({});
 
-  const carregarUsuarios = async () => {
+  const carregarUsuarios = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get('/api/usuarios');
@@ -59,11 +59,11 @@ export default function Usuarios() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     carregarUsuarios();
-  }, []);
+  }, [carregarUsuarios]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -339,4 +339,4 @@ export default function Usuarios() {
       </Snackbar>
     </Box>
   );
-} 
+}

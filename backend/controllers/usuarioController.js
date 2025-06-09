@@ -35,8 +35,6 @@ exports.login = async (req, res) => {
     res.status(400).json({ erro: erro.message });
   }
 };
-<<<<<<< HEAD
-=======
 
 // Agendamento
 exports.agendar = async (req, res) => {
@@ -70,4 +68,3 @@ async function verificarDisponibilidade(barbeiroId, horario) {
 async function enviarNotificacao(clienteId, mensagem) {
   // Implementar lógica de envio de notificação
 }
->>>>>>> e5c03d2b0ab424ffecedba281804953725a2063b

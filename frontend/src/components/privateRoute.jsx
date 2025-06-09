@@ -5,6 +5,7 @@ import api from '../config/axios';
 const PrivateRoute = ({ children }) => {
   let token = null;
   let user = null;
+  let hasError = false;
 
   try {
     token = localStorage.getItem('token');
@@ -14,7 +15,7 @@ const PrivateRoute = ({ children }) => {
     }
   } catch (error) {
     console.error('Erro ao ler dados do localStorage:', error);
-    return <Navigate to="/login" />;
+    hasError = true;
   }
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const PrivateRoute = ({ children }) => {
     verificarToken();
   }, [token]);
 
-  if (!token || !user) {
+  if (hasError || !token || !user) {
     console.log('Redirecionando para login: Token ou user não encontrados');
     return <Navigate to="/login" />;
   }
@@ -49,4 +50,4 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-export default PrivateRoute; 
+export default PrivateRoute;
