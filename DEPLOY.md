@@ -171,13 +171,13 @@ npm run dev
 npm start
 ```
 
-## Checklist de Deploy
+## 📋 Checklist de Deploy
 
 ### Antes do Deploy
-- [ ] Testar localmente
-- [ ] Configurar variáveis de ambiente
-- [ ] Verificar conexão com banco de dados
-- [ ] Testar CORS entre frontend e backend
+- [ ] Testar aplicação localmente
+- [ ] Verificar todas as variáveis de ambiente
+- [ ] Confirmar conexão com banco de dados
+- [ ] Testar build da aplicação
 
 ### Após o Deploy
 - [ ] Verificar se a API está respondendo
@@ -200,6 +200,12 @@ npm start
 3. **Environment Variables**
    - Verificar se todas as variáveis estão configuradas
    - Reiniciar aplicação após mudanças
+
+- Verificar logs do Heroku: `heroku logs --tail -a nome-do-app`
+- Verificar logs do Vercel no dashboard
+- Testar conexão com MongoDB Atlas
+- Verificar URLs nos arquivos de ambiente
+- **📖 Para erros específicos do Vercel, consulte**: [VERCEL_TROUBLESHOOTING.md](./VERCEL_TROUBLESHOOTING.md)
 
 ## Monitoramento
 

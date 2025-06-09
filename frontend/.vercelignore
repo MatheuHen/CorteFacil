@@ -2,12 +2,12 @@
 node_modules
 
 # Testing
-coverage
+/coverage
 
-# Production build (will be generated)
-build
+# Production
+/build
 
-# Environment files (handled by vercel.json)
+# Environment variables
 .env*
 !.env.example
 
@@ -28,24 +28,16 @@ pids
 # Optional eslint cache
 .eslintcache
 
-# IDE files
+# IDE
 .vscode
 .idea
 *.swp
 *.swo
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Git
-.git
-.gitignore
-
-# Documentation
-README.md
+# Misc
+*.tgz
+*.tar.gz

@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "set CI=false && set GENERATE_SOURCEMAP=false && react-scripts build",
+    "build": "react-scripts build",
     "build:staging": "npm run build",
     "build:production": "npm run build",
     "test": "react-scripts test",

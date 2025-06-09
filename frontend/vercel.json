@@ -28,7 +28,8 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://cortefacil-app.herokuapp.com/api",
-    "NODE_ENV": "production"
+    "REACT_APP_API_URL": "https://cortefacil-backend.vercel.app/api",
+    "NODE_ENV": "production",
+    "GENERATE_SOURCEMAP": "false"
   }
 }
