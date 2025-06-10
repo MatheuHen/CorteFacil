@@ -1,0 +1,14 @@
+{
+  "name": "corte-facil",
+  "version": "1.0.0",
+  "description": "Sistema de agendamento para barbearia",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "install-deps": "cd frontend && npm install"
+  },
+  "keywords": ["react", "barbearia", "agendamento"],
+  "author": "",
+  "license": "ISC"
+}

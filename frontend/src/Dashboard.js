@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { buildApiUrl } from './config';
 import './Dashboard.css';
 
 function Dashboard({ usuario: usuarioProp, onLogout }) {
@@ -67,7 +68,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
   const buscarHorariosDisponiveis = async (data) => {
     try {
       setCarregandoHorarios(true);
-      const response = await fetch(`http://localhost:5000/api/usuarios/horarios-disponiveis?data=${data}`);
+      const response = await fetch(buildApiUrl(`/api/usuarios/horarios-disponiveis?data=${data}`));
       const resultado = await response.json();
       
       if (response.ok) {
@@ -86,7 +87,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
 
   const carregarAgendamentos = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/usuarios/agendamentos/${usuarioProp.id}`);
+      const response = await fetch(buildApiUrl(`/api/usuarios/agendamentos/${usuarioProp.id}`));
       const resultado = await response.json();
       
       if (response.ok) {
@@ -110,7 +111,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
 
     try {
       setCarregandoAgendamento(true);
-      const response = await fetch('http://localhost:5000/api/usuarios/agendamentos', {
+      const response = await fetch(buildApiUrl('/api/usuarios/agendamentos'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +153,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
 
   const cancelarAgendamento = async (agendamentoId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/usuarios/agendamentos/${agendamentoId}/cancelar`, {
+      const response = await fetch(buildApiUrl(`/api/usuarios/agendamentos/${agendamentoId}/cancelar`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

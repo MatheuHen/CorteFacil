@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { buildApiUrl } from './config';
 import './Login.css';
 
 function Login({ onLogin, onIrCadastro }) {
@@ -19,7 +20,7 @@ function Login({ onLogin, onIrCadastro }) {
     setMensagem('');
 
     try {
-      const resposta = await fetch('http://localhost:5000/api/usuarios/login', {
+      const resposta = await fetch(buildApiUrl('/api/usuarios/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha })

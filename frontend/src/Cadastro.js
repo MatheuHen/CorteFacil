@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { buildApiUrl } from './config';
 import './Cadastro.css';
 
 function Cadastro({ onCadastro, onVoltarLogin }) {
@@ -65,7 +66,7 @@ function Cadastro({ onCadastro, onVoltarLogin }) {
     setMensagem('');
 
     try {
-      const resposta = await fetch('http://localhost:5000/api/usuarios/cadastrar', {
+      const resposta = await fetch(buildApiUrl('/api/usuarios/cadastrar'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
