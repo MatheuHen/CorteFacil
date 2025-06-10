@@ -1,98 +1,81 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const { DataTypes } = require('sequelize');
+const { getDatabase } = require('../config/database');
 
-const usuarioSchema = new mongoose.Schema({
+// Schema do MongoDB
+const usuarioSchemaMongoose = new mongoose.Schema({
   nome: {
     type: String,
-    required: [true, 'Nome é obrigatório'],
-    trim: true,
-    minlength: [2, 'Nome deve ter no mínimo 2 caracteres'],
-    maxlength: [100, 'Nome deve ter no máximo 100 caracteres']
+    required: true,
+    trim: true
   },
   email: {
     type: String,
-    required: [true, 'Email é obrigatório'],
+    required: true,
     unique: true,
     lowercase: true,
-    trim: true,
-    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Por favor, use um email válido']
+    trim: true
   },
   senha: {
     type: String,
-    required: [true, 'Senha é obrigatória'],
-    minlength: [6, 'A senha deve ter no mínimo 6 caracteres']
-  },
-  tipo: {
-    type: String,
-    enum: {
-      values: ['cliente', 'barbeiro', 'admin'],
-      message: 'Tipo deve ser cliente, barbeiro ou admin'
-    },
-    default: 'cliente'
+    required: true,
+    minlength: 6
   },
   telefone: {
     type: String,
     required: false,
-    validate: {
-      validator: function(v) {
-        return !v || /^\(\d{2}\) \d{5}-\d{4}$/.test(v);
-      },
-      message: props => `${props.value} não é um número de telefone válido! Use o formato (99) 99999-9999`
-    }
+    trim: true,
+    default: ''
   },
-  ativo: {
-    type: Boolean,
-    default: true
-  },
-  ultimoLogin: {
-    type: Date
+  tipo: {
+    type: String,
+    enum: ['cliente', 'barbeiro'],
+    default: 'cliente'
   }
 }, {
   timestamps: true
 });
 
-// Middleware para criptografar a senha antes de salvar
-usuarioSchema.pre('save', async function(next) {
-  if (!this.isModified('senha')) return next();
+const UsuarioMongoose = mongoose.model('Usuario', usuarioSchemaMongoose);
+
+// Modelo híbrido que funciona com ambos os bancos
+class Usuario {
+  static async criar(dadosUsuario) {
+    const { db, isMongoose } = getDatabase();
+    
+    if (isMongoose) {
+      const usuario = new UsuarioMongoose(dadosUsuario);
+      return await usuario.save();
+    } else {
+      // SQLite - usar modelo já definido
+      const UsuarioSequelize = db.models.Usuario;
+      return await UsuarioSequelize.create(dadosUsuario);
+    }
+  }
   
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.senha = await bcrypt.hash(this.senha, salt);
-    next();
-  } catch (error) {
-    next(error);
+  static async buscarPorEmail(email) {
+    const { db, isMongoose } = getDatabase();
+    
+    if (isMongoose) {
+      return await UsuarioMongoose.findOne({ email });
+    } else {
+      // SQLite - usar modelo já definido
+      const UsuarioSequelize = db.models.Usuario;
+      return await UsuarioSequelize.findOne({ where: { email } });
+    }
   }
-});
-
-// Middleware para atualizar o último login
-usuarioSchema.pre('save', function(next) {
-  if (this.isNew) {
-    this.ultimoLogin = new Date();
+  
+  static async buscarPorId(id) {
+    const { db, isMongoose } = getDatabase();
+    
+    if (isMongoose) {
+      return await UsuarioMongoose.findById(id);
+    } else {
+      // SQLite - usar modelo já definido
+      const UsuarioSequelize = db.models.Usuario;
+      return await UsuarioSequelize.findByPk(id);
+    }
   }
-  next();
-});
+}
 
-// Método para verificar senha
-usuarioSchema.methods.verificarSenha = async function(senhaInformada) {
-  return await bcrypt.compare(senhaInformada, this.senha);
-};
-
-// Método para atualizar último login
-usuarioSchema.methods.atualizarUltimoLogin = async function() {
-  this.ultimoLogin = new Date();
-  return this.save();
-};
-
-// Método para desativar usuário
-usuarioSchema.methods.desativar = async function() {
-  this.ativo = false;
-  return this.save();
-};
-
-// Método para ativar usuário
-usuarioSchema.methods.ativar = async function() {
-  this.ativo = true;
-  return this.save();
-};
-
-module.exports = mongoose.model('Usuario', usuarioSchema);
+module.exports = Usuario;

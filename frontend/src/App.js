@@ -1,64 +1,60 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login.jsx';
-import Agendamentos from './pages/Agendamentos.jsx';
-import Usuarios from './pages/Usuarios.jsx';
-import ClienteDashboard from './pages/ClienteDashboard.js';
-import BarbeiroDashboard from './pages/BarbeiroDashboard.js';
-import ProfileSelection from './pages/ProfileSelection.js';
-import PrivateRoute from './components/privateRoute.jsx';
+import React, { useState } from 'react';
+import Login from './Login';
+import Cadastro from './Cadastro';
+import Dashboard from './Dashboard';
+import './App.css';
 
 function App() {
+  const [usuarioLogado, setUsuarioLogado] = useState(false);
+  const [dadosUsuario, setDadosUsuario] = useState(null);
+  const [telaAtual, setTelaAtual] = useState('login'); // 'login' ou 'cadastro'
+
+  const handleLogin = (dadosUsuario) => {
+    setUsuarioLogado(true);
+    setDadosUsuario(dadosUsuario);
+  };
+
+  const handleLogout = () => {
+    setUsuarioLogado(false);
+    setDadosUsuario(null);
+    setTelaAtual('login');
+  };
+
+  const irParaCadastro = () => {
+    setTelaAtual('cadastro');
+  };
+
+  const irParaLogin = () => {
+    setTelaAtual('login');
+  };
+
+  const renderizarTela = () => {
+    if (usuarioLogado) {
+      return <Dashboard usuario={dadosUsuario} onLogout={handleLogout} />;
+    }
+    
+    if (telaAtual === 'cadastro') {
+      return <Cadastro onVoltarLogin={irParaLogin} />;
+    }
+    
+    return <Login onLogin={handleLogin} onIrCadastro={irParaCadastro} />;
+  };
+
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/login" replace />} />
+    <div className="App">
+      <header className="App-header">
+        <h1>CorteFácil</h1>
+        <p>Sistema de Agendamento de Barbearia</p>
+      </header>
       
-      {/* Rotas protegidas */}
-      <Route
-        path="/profile-selection"
-        element={
-          <PrivateRoute>
-            <ProfileSelection />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/cliente-dashboard"
-        element={
-          <PrivateRoute>
-            <ClienteDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/barbeiro-dashboard"
-        element={
-          <PrivateRoute>
-            <BarbeiroDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/agendamentos"
-        element={
-          <PrivateRoute>
-            <Agendamentos />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/usuarios"
-        element={
-          <PrivateRoute>
-            <Usuarios />
-          </PrivateRoute>
-        }
-      />
+      <main className="App-main">
+        {renderizarTela()}
+      </main>
       
-      {/* Rota para qualquer outro caminho não definido */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+      <footer className="App-footer">
+        <p>&copy; 2024 CorteFácil. Todos os direitos reservados.</p>
+      </footer>
+    </div>
   );
 }
 
