@@ -24,8 +24,7 @@
     }
   ],
   "env": {
-    "NODE_OPTIONS": "--openssl-legacy-provider",
-    "REACT_APP_API_URL": "@api_url"
+    "NODE_OPTIONS": "--openssl-legacy-provider"
   },
   "build": {
     "env": {
