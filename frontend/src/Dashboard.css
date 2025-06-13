@@ -114,7 +114,13 @@
   gap: 16px;
 }
 
-.agendamento-card {
+.agendamentos-grid {
+  display: grid;
+  gap: 16px;
+}
+
+/* Novos estilos para agendamentos melhorados */
+.agendamento-item {
   background: var(--cor-terciaria);
   border: 2px solid #f0f0f0;
   border-radius: var(--border-radius);
@@ -124,7 +130,7 @@
   overflow: hidden;
 }
 
-.agendamento-card::before {
+.agendamento-item::before {
   content: '';
   position: absolute;
   top: 0;
@@ -134,10 +140,26 @@
   background: var(--cor-secundaria);
 }
 
-.agendamento-card:hover {
+.agendamento-item:hover {
   transform: translateY(-2px);
   box-shadow: var(--sombra);
   border-color: var(--cor-secundaria);
+}
+
+.agendamento-agendado::before {
+  background: #fbbf24;
+}
+
+.agendamento-confirmado::before {
+  background: #10b981;
+}
+
+.agendamento-cancelado::before {
+  background: #ef4444;
+}
+
+.agendamento-concluido::before {
+  background: #6366f1;
 }
 
 .agendamento-header {
@@ -145,14 +167,104 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.agendamento-servico {
-  font-size: 18px;
+.agendamento-data-hora {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agendamento-data-hora .data {
+  font-size: 16px;
   font-weight: 600;
   color: var(--cor-primaria);
-  margin: 0;
 }
+
+.agendamento-data-hora .horario {
+  font-size: 14px;
+  color: var(--cor-cinza-escuro);
+  font-weight: 500;
+}
+
+.agendamento-detalhes {
+  margin-bottom: 16px;
+}
+
+.agendamento-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.info-row p {
+  margin: 0;
+  padding: 8px;
+  background: rgba(0, 123, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+  font-size: 14px;
+}
+
+.servico-barbeiro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.servico-barbeiro p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--cor-cinza-escuro);
+}
+
+.observacoes {
+  margin: 12px 0 0 0;
+  font-size: 14px;
+  color: var(--cor-cinza-escuro);
+  font-style: italic;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.agendamento-acoes {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Estilos para edição */
+.editing-notice {
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editing-notice p {
+  margin: 0;
+  color: #92400e;
+  font-weight: 500;
+}
+
+
 
 .status {
   padding: 4px 12px;
@@ -246,6 +358,26 @@
     align-items: flex-start;
     gap: 8px;
   }
+  
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .servico-barbeiro {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .agendamento-acoes {
+    justify-content: center;
+  }
+  
+  .editing-notice {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -253,17 +385,26 @@
     padding: 16px;
   }
   
-  .agendamento-card {
+  .agendamento-item {
     padding: 16px;
   }
   
   .form-grid {
     gap: 16px;
   }
+  
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .agendamento-acoes {
+    flex-direction: column;
+  }
 }
 
 /* Animações */
-.agendamento-card {
+.agendamento-item {
   animation: slideIn 0.3s ease-out;
 }
 
@@ -292,7 +433,7 @@
 }
 
 /* Hover states melhorados */
-.agendamento-card:hover .agendamento-servico {
+.agendamento-item:hover .agendamento-data-hora .data {
   color: var(--cor-secundaria);
 }
 

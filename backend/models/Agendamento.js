@@ -15,7 +15,8 @@ const agendamentoSchema = new mongoose.Schema({
   barbeiroId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Usuario',
-    required: false // Pode ser null se não especificado
+    required: false,
+    default: null
   },
   barbeiroNome: {
     type: String,

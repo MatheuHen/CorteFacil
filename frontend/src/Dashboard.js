@@ -9,8 +9,16 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
     data: '',
     horario: '',
     servico: 'Corte de cabelo',
+    barbeiro: '',
     observacoes: ''
   });
+  const [barbeiros] = useState([
+    { id: 1, nome: 'Carlos Santos' },
+    { id: 2, nome: 'Pedro Lima' },
+    { id: 3, nome: 'João Silva' },
+    { id: 4, nome: 'Roberto Costa' }
+  ]);
+  const [agendamentoEditando, setAgendamentoEditando] = useState(null);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
   const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const [carregandoAgendamento, setCarregandoAgendamento] = useState(false);
@@ -31,10 +39,16 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
     }
 
     // Simular agendamentos existentes
+    const hoje = new Date();
+    const amanha = new Date(hoje);
+    amanha.setDate(hoje.getDate() + 1);
+    const proximaSemana = new Date(hoje);
+    proximaSemana.setDate(hoje.getDate() + 7);
+    
     const agendamentosSimulados = [
       {
         id: 1,
-        data: '2024-01-15',
+        data: amanha.toISOString().split('T')[0],
         horario: '14:00',
         servico: 'Corte de cabelo',
         barbeiro: 'Carlos Santos',
@@ -42,7 +56,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
       },
       {
         id: 2,
-        data: '2024-01-20',
+        data: proximaSemana.toISOString().split('T')[0],
         horario: '16:30',
         servico: 'Corte + Barba',
         barbeiro: 'Pedro Lima',
@@ -54,10 +68,20 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNovoAgendamento(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'barbeiro') {
+      // Para barbeiro, salvar o objeto completo
+      const barbeiroSelecionado = barbeiros.find(b => b.id.toString() === value);
+      setNovoAgendamento(prev => ({
+        ...prev,
+        [name]: barbeiroSelecionado || ''
+      }));
+    } else {
+      setNovoAgendamento(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     
     // Se mudou a data, buscar horários disponíveis
     if (name === 'data' && value) {
@@ -102,9 +126,69 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
     }
   };
 
+  const remarcarAgendamento = (agendamento) => {
+    setAgendamentoEditando(agendamento);
+    setNovoAgendamento({
+      data: agendamento.data,
+      horario: agendamento.horario,
+      servico: agendamento.servico,
+      barbeiro: agendamento.barbeiro,
+      observacoes: agendamento.observacoes || ''
+    });
+  };
+
+  const cancelarEdicao = () => {
+    setAgendamentoEditando(null);
+    setNovoAgendamento({
+      data: '',
+      horario: '',
+      servico: 'Corte de cabelo',
+      barbeiro: '',
+      observacoes: ''
+    });
+  };
+
+  const validarHorarioMinimo = () => {
+    const agora = new Date();
+    const dataAgendamento = new Date(`${novoAgendamento.data}T${novoAgendamento.horario}:00`);
+    
+    // Verificar se a data é válida
+    if (isNaN(dataAgendamento.getTime())) {
+      return false;
+    }
+    
+    // Calcular diferença em minutos para maior precisão
+    const diferencaMinutos = (dataAgendamento - agora) / (1000 * 60);
+    
+    // Permitir agendamentos com pelo menos 60 minutos de antecedência
+    return diferencaMinutos >= 60;
+  };
+
+  const verificarConflito = () => {
+    return agendamentos.some(ag => 
+      ag.data === novoAgendamento.data && 
+      ag.horario === novoAgendamento.horario && 
+      ag.barbeiro === novoAgendamento.barbeiro &&
+      ag.status !== 'cancelado' &&
+      (!agendamentoEditando || ag.id !== agendamentoEditando.id)
+    );
+  };
+
   const criarAgendamento = async () => {
-    if (!novoAgendamento.data || !novoAgendamento.horario || !novoAgendamento.servico) {
+    if (!novoAgendamento.data || !novoAgendamento.horario || !novoAgendamento.servico || !novoAgendamento.barbeiro) {
       setMensagem('Por favor, preencha todos os campos obrigatórios.');
+      setTipoMensagem('erro');
+      return;
+    }
+
+    if (!validarHorarioMinimo()) {
+      setMensagem('O agendamento deve ser feito com pelo menos 1 hora de antecedência.');
+      setTipoMensagem('erro');
+      return;
+    }
+
+    if (verificarConflito()) {
+      setMensagem('Este horário já está ocupado com o barbeiro selecionado.');
       setTipoMensagem('erro');
       return;
     }
@@ -121,6 +205,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
           data: novoAgendamento.data,
           horario: novoAgendamento.horario,
           servico: novoAgendamento.servico,
+          barbeiro: novoAgendamento.barbeiro,
           observacoes: novoAgendamento.observacoes
         })
       });
@@ -134,8 +219,10 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
           data: '',
           horario: '',
           servico: 'Corte de cabelo',
+          barbeiro: '',
           observacoes: ''
         });
+        setAgendamentoEditando(null);
         setHorariosDisponiveis([]);
         // Recarregar agendamentos
         carregarAgendamentos();
@@ -214,7 +301,13 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
         <div className="dashboard-grid">
           {/* Seção de Novo Agendamento */}
           <section className="card novo-agendamento">
-            <h2 className="section-title">Novo Agendamento</h2>
+            <h2 className="section-title">{agendamentoEditando ? 'Remarcar Agendamento' : 'Novo Agendamento'}</h2>
+            {agendamentoEditando && (
+              <div className="editing-notice">
+                <p>Editando agendamento de {new Date(agendamentoEditando.data).toLocaleDateString('pt-BR')} às {agendamentoEditando.horario}</p>
+                <button onClick={cancelarEdicao} className="btn btn-secondary btn-small">Cancelar Edição</button>
+              </div>
+            )}
             <div className="form-grid">
               <div className="input-group">
                 <label htmlFor="data" className="input-label">Data</label>
@@ -227,6 +320,22 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
                   className="input"
                   min={new Date().toISOString().split('T')[0]}
                 />
+              </div>
+              
+              <div className="input-group">
+                <label htmlFor="barbeiro" className="input-label">Barbeiro</label>
+                <select
+                  id="barbeiro"
+                  name="barbeiro"
+                  value={novoAgendamento.barbeiro?.id || ''}
+                  onChange={handleInputChange}
+                  className="input"
+                >
+                  <option value="">Selecione um barbeiro</option>
+                  {barbeiros.map(barbeiro => (
+                    <option key={barbeiro.id} value={barbeiro.id}>{barbeiro.nome}</option>
+                  ))}
+                </select>
               </div>
               
               <div className="input-group">
@@ -285,7 +394,7 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
               className="btn btn-primary"
               disabled={carregandoAgendamento}
             >
-              {carregandoAgendamento ? 'Agendando...' : 'Agendar'}
+              {carregandoAgendamento ? (agendamentoEditando ? 'Remarcando...' : 'Agendando...') : (agendamentoEditando ? 'Remarcar' : 'Agendar')}
             </button>
             
             {mensagem && (
@@ -302,45 +411,76 @@ function Dashboard({ usuario: usuarioProp, onLogout }) {
               <p className="empty-state">Você não possui agendamentos.</p>
             ) : (
               <div className="agendamentos-grid">
-                {agendamentos.map(agendamento => (
-                  <div className="agendamento-item" key={agendamento.id}>
-                    <div className="agendamento-info">
-                      <p><strong>Data:</strong> {new Date(agendamento.data).toLocaleDateString('pt-BR')}</p>
-                      <p><strong>Horário:</strong> {agendamento.horario}</p>
-                      <p><strong>Serviço:</strong> {agendamento.servico}</p>
-                      {agendamento.barbeiroNome && (
-                        <p><strong>Barbeiro:</strong> {agendamento.barbeiroNome}</p>
-                      )}
-                      {agendamento.observacoes && (
-                        <p><strong>Observações:</strong> {agendamento.observacoes}</p>
-                      )}
-                      <p><strong>Status:</strong> 
+                {agendamentos.map(agendamento => {
+                  // Corrigir formatação da data para evitar Invalid Date
+                  let dataFormatada = 'Data inválida';
+                  try {
+                    if (agendamento.data) {
+                      // Se a data já está no formato YYYY-MM-DD, usar diretamente
+                      const [ano, mes, dia] = agendamento.data.split('-');
+                      if (ano && mes && dia) {
+                        const dataObj = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+                        dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Erro ao formatar data:', error);
+                  }
+                  
+                  return (
+                    <div className={`agendamento-item agendamento-${agendamento.status}`} key={agendamento.id}>
+                      <div className="agendamento-header">
+                        <div className="agendamento-data-hora">
+                          <span className="data">{dataFormatada}</span>
+                          <span className="horario">{agendamento.horario}</span>
+                        </div>
                         <span className={`status status-${agendamento.status}`}>
                           {agendamento.status === 'agendado' ? 'Agendado' : 
                            agendamento.status === 'confirmado' ? 'Confirmado' : 
                            agendamento.status === 'concluido' ? 'Concluído' : 'Cancelado'}
                         </span>
-                      </p>
+                      </div>
+                      
+                      <div className="agendamento-detalhes">
+                        <div className="agendamento-info">
+                          <div className="info-row">
+                            <p><strong>📅 Data:</strong> {dataFormatada}</p>
+                            <p><strong>🕐 Horário:</strong> {agendamento.horario}</p>
+                          </div>
+                          <div className="info-row">
+                            <p><strong>✂️ Serviço:</strong> {agendamento.servico}</p>
+                            <p><strong>👨‍💼 Barbeiro:</strong> {agendamento.barbeiro || agendamento.barbeiroNome || 'A definir'}</p>
+                          </div>
+                        </div>
+                        {agendamento.observacoes && (
+                          <p className="observacoes"><strong>📝 Observações:</strong> {agendamento.observacoes}</p>
+                        )}
+                      </div>
+                      
+                      {agendamento.status === 'agendado' && (
+                        <div className="agendamento-acoes">
+                          <button 
+                            onClick={() => remarcarAgendamento(agendamento)}
+                            className="btn btn-primary btn-small"
+                          >
+                            📅 Remarcar
+                          </button>
+                          <button 
+                            onClick={() => cancelarAgendamento(agendamento.id)}
+                            className="btn btn-secondary btn-small"
+                          >
+                            ❌ Cancelar
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    {agendamento.status === 'agendado' && (
-                      <button 
-                        onClick={() => cancelarAgendamento(agendamento.id)}
-                        className="btn btn-secondary btn-small"
-                      >
-                        Cancelar
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
         </div>
       </main>
-
-      <footer className="dashboard-footer">
-        <p>&copy; 2024 CorteFácil. Todos os direitos reservados.</p>
-      </footer>
     </div>
   );
 }

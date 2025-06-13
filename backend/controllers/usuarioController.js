@@ -2,6 +2,7 @@ const Usuario = require('../models/Usuario');
 const Agendamento = require('../models/Agendamento');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 // Cadastro
 exports.cadastrar = async (req, res) => {
@@ -79,7 +80,7 @@ exports.login = async (req, res) => {
 // Criar agendamento
 exports.criarAgendamento = async (req, res) => {
   try {
-    const { clienteId, data, horario, servico, observacoes } = req.body;
+    const { clienteId, data, horario, servico, barbeiro, observacoes } = req.body;
 
     // Validações
     if (!clienteId || !data || !horario || !servico) {
@@ -92,13 +93,32 @@ exports.criarAgendamento = async (req, res) => {
       return res.status(404).json({ erro: 'Cliente não encontrado.' });
     }
 
-    // Verificar se a data é no futuro
-    const dataAgendamento = new Date(data);
+    // Verificar se a data é válida (hoje ou no futuro)
+    const dataAgendamento = new Date(data + 'T00:00:00');
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     
-    if (dataAgendamento < hoje) {
-      return res.status(400).json({ erro: 'A data do agendamento deve ser hoje ou no futuro.' });
+    // Normalizar a data do agendamento para comparação
+    const dataAgendamentoNormalizada = new Date(dataAgendamento);
+    dataAgendamentoNormalizada.setHours(0, 0, 0, 0);
+    
+    // Permitir agendamentos a partir de hoje
+    if (dataAgendamentoNormalizada < hoje) {
+      return res.status(400).json({ erro: 'A data do agendamento não pode ser no passado.' });
+    }
+    
+    // Se for hoje, verificar se o horário é no futuro (com pelo menos 1 hora de antecedência)
+    if (dataAgendamentoNormalizada.getTime() === hoje.getTime()) {
+      const agora = new Date();
+      const [horas, minutos] = horario.split(':').map(Number);
+      const horarioAgendamento = new Date();
+      horarioAgendamento.setHours(horas, minutos, 0, 0);
+      
+      const diferencaMinutos = (horarioAgendamento - agora) / (1000 * 60);
+      
+      if (diferencaMinutos < 60) {
+        return res.status(400).json({ erro: 'Para agendamentos hoje, é necessário pelo menos 1 hora de antecedência.' });
+      }
     }
 
     // Verificar disponibilidade do horário
@@ -108,15 +128,23 @@ exports.criarAgendamento = async (req, res) => {
     }
 
     // Criar novo agendamento
-    const novoAgendamento = await Agendamento.criar({
-      clienteId,
+    const dadosAgendamento = {
+      clienteId: new mongoose.Types.ObjectId(clienteId),
       clienteNome: cliente.nome,
+      barbeiroNome: barbeiro?.nome || 'Não especificado',
       data: dataAgendamento,
       horario,
       servico,
       observacoes: observacoes || '',
       status: 'agendado'
-    });
+    };
+    
+    // Só adicionar barbeiroId se existir
+    if (barbeiro?.id) {
+      dadosAgendamento.barbeiroId = new mongoose.Types.ObjectId(barbeiro.id);
+    }
+    
+    const novoAgendamento = await Agendamento.criar(dadosAgendamento);
 
     res.status(201).json({
       mensagem: 'Agendamento criado com sucesso!',
@@ -126,7 +154,8 @@ exports.criarAgendamento = async (req, res) => {
         horario: novoAgendamento.horario,
         servico: novoAgendamento.servico,
         status: novoAgendamento.status,
-        clienteNome: novoAgendamento.clienteNome
+        clienteNome: novoAgendamento.clienteNome,
+        barbeiroNome: novoAgendamento.barbeiroNome
       }
     });
   } catch (erro) {

@@ -174,20 +174,7 @@ function Cadastro({ onCadastro, onVoltarLogin }) {
             />
           </div>
           
-          <div className="input-group">
-            <label htmlFor="tipo" className="input-label">Tipo de Usuário</label>
-            <select
-              id="tipo"
-              name="tipo"
-              value={formData.tipo}
-              onChange={handleInputChange}
-              className="input"
-              disabled={carregando}
-            >
-              <option value="cliente">Cliente</option>
-              <option value="barbeiro">Barbeiro</option>
-            </select>
-          </div>
+
           
           <button 
             onClick={fazerCadastro} 
